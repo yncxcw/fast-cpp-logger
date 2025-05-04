@@ -3,6 +3,35 @@ cmake_minimum_required(VERSION 3.22)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Find clang-format and clang-tidy
+find_program(CLANG_FORMAT "clang-format")
+find_program(CLANG_TIDY "clang-tidy")
+
+# Add format target
+if(CLANG_FORMAT)
+    file(GLOB_RECURSE ALL_CXX_SOURCES
+        "include/*.hpp"
+        "src/*.cpp"
+        "tests/*.cpp"
+    )
+    add_custom_target(format
+        COMMAND ${CLANG_FORMAT}
+        -i
+        ${ALL_CXX_SOURCES}
+        COMMENT "Running clang-format"
+    )
+endif()
+
+# Add tidy target
+if(CLANG_TIDY)
+    add_custom_target(tidy
+        COMMAND ${CLANG_TIDY}
+        ${ALL_CXX_SOURCES}
+        -config-file=${CMAKE_SOURCE_DIR}/.clang-tidy
+        COMMENT "Running clang-tidy"
+    )
+endif()
+
 # Build the logger library
 set(SOURCE src/logger.cpp)
 add_library(logger STATIC ${SOURCE})
