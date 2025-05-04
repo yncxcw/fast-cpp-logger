@@ -69,7 +69,7 @@ std::string Logger::formatMessage(LogLevel level, const std::string& message) {
     std::stringstream ss;
     ss << "[" << getCurrentTime() << "]"
        << "[" << levelToString(level) << "] "
-       << message;
+       << message << std::endl; 
     return ss.str();
 }
 

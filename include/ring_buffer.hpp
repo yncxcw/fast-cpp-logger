@@ -4,12 +4,14 @@
 #include <vector>
 #include <utility>
 #include <stdexcept>
+#include <atomic>
+#include <memory>
 
 template <typename T>
 class RingBuffer {
 public:
     explicit RingBuffer(size_t capacity)
-        : capacity_(capacity), buffer_(capacity), head_(0), tail_(0), size_(0) {
+        : capacity_(capacity), buffer_size_(capacity + 1), buffer_(capacity + 1), head_(0), tail_(0) {
         if (capacity == 0) {
             throw std::invalid_argument("Capacity must be greater than 0");
         }
@@ -30,53 +32,56 @@ public:
     }
  
     std::pair<T&, bool> pop() {
-        if (isEmpty()) {
+        size_t current_tail = tail_.load(std::memory_order_relaxed);
+        // buffer is empty.
+        if (current_tail == head_.load(std::memory_order_acquire)) {  
             T t{};
             return {t, false};
         }
-        T& item = buffer_[tail_];
-        tail_ = (tail_ + 1) % capacity_;
-        --size_;
+
+        T& item = buffer_[current_tail];
+        tail_.store((current_tail + 1) % buffer_size_, std::memory_order_release);
         return {item, true};
     }
 
-    const bool isEmpty() const {
-        return size_ == 0;
+    bool isEmpty() const {
+        return tail_.load(std::memory_order_acquire) == 
+               head_.load(std::memory_order_acquire);
     }
 
-    const bool isFull() const {
-        return size_ == capacity_;
+    bool isFull() const {
+        return (head_.load(std::memory_order_acquire) + 1) % buffer_size_ == 
+               tail_.load(std::memory_order_acquire);
     }
 
-    const size_t size() const {
-        return size_;
-    }
-
-    const size_t capacity() const {
-        return capacity_;
+    size_t capacity() const {
+        return capacity_ ;
     }
 
     void reset() {
-        head_ = 0;
-        tail_ = 0;
-        size_ = 0;
+        tail_.store(0, std::memory_order_release);
+        head_.store(0, std::memory_order_release);
     }
 
 private:
-    size_t capacity_;
+    const size_t capacity_;
+    const size_t buffer_size_;
     std::vector<T> buffer_;
-    std::atomic<size_t> head_;
-    std::atomic<size_t> tail_;
-    std::atomic<size_t> size_;
+    std::atomic<size_t> head_;  // Write index
+    std::atomic<size_t> tail_;  // Read index
 
     template<typename U>
     bool emplace_push(U&& item) {
-        if (isFull()) {
+
+        size_t current_head = head_.load(std::memory_order_relaxed);
+
+        size_t next_head = (current_head + 1) % buffer_size_;
+        if (next_head == tail_.load(std::memory_order_acquire)) {
             return false;
         }
-        buffer_[head_] = std::forward<U>(item);
-        head_ = (head_ + 1) % capacity_;
-        ++size_;
+
+        buffer_[current_head] = std::forward<U>(item);
+        head_.store(next_head, std::memory_order_release);
         return true;
     }
 };
