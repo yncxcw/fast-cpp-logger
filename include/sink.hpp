@@ -1,6 +1,7 @@
 #ifndef SINK_HPP
 #define SINK_HPP
 
+#include <iostream>
 #include <utility>
 #include <vector>
 #include <memory>
@@ -16,7 +17,7 @@ public:
         std::shared_ptr<RingBuffer<std::string>> buffer,
         std::vector<WriterFactory::WriterType> writer_types,
         const std::string& loger_filename)
-        : buffer_(buffer) {
+        : buffer_(buffer), finished_(false) {
         // Build writers
         for (const auto& writer_type : writer_types) {
             writers_.push_back(WriterFactory::create_writer(writer_type, loger_filename));
@@ -24,16 +25,22 @@ public:
         // Start processing in a separate thread
         process_thread_ = std::thread(&Sink::process, this);
     }
-    virtual ~Sink() { 
+    ~Sink() { 
         if (process_thread_.joinable()) {
             process_thread_.join();
         }
     }
 
+    void finish () {
+        finished_.store(true, std::memory_order_release);
+    }
+
+private:
     // Process items from the buffer until empty
     void process() {
         while (true) {
             auto [item, success] = buffer_->pop();
+            // std::cout << "Processing item: " << item << std::endl;
             if (!success) {
                 // Empty the buffer, if finished_ is set, we exit the loop
                 if(finished_.load(std::memory_order_relaxed)) {
@@ -47,10 +54,6 @@ public:
                 writer->write(item);
             }
         }
-    }
-
-    void finish () {
-        finished_.store(false, std::memory_order_relaxed);
     }
 
 private:

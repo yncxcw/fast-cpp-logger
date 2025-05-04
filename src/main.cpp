@@ -11,5 +11,6 @@ int main() {
     Logger::getInstance().warning("This is a warning message");
     Logger::getInstance().error("An error occurred");
     Logger::getInstance().critical("Critical error! Immediate attention required");
+    // Logger::getInstance().finish();
     return 0;
 }

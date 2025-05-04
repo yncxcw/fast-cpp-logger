@@ -5,44 +5,39 @@
 Logger::Logger() : minLogLevel(LogLevel::INFO), consoleOutput(true) {}
 
 Logger::~Logger() {
-    if (logFile.is_open()) {
-        logFile.close();
-    }
+    // Notify the witer to finish.
+    sink->finish();
+}
+
+void Logger::finish() {
+    sink->finish();
 }
 
 void Logger::init(const std::string& filename, LogLevel level, bool console, bool override) {
-    std::lock_guard<std::mutex> lock(logMutex);
     
     minLogLevel = level;
     consoleOutput = console;
 
-    if (!filename.empty()) {
-        if (override && std::filesystem::exists(filename)) {
-            std::filesystem::remove(filename);
-        }
-        logFile.open(filename, std::ios::out | std::ios::app);
-        if (!logFile.is_open()) {
-            throw std::runtime_error("Failed to open log file: " + filename);
-        }
+    // Initialize the buffer using the default capacity which is 2000.
+    buffer = std::make_shared<RingBuffer<std::string>>();
+    std::vector<WriterFactory::WriterType> writer_types;
+
+    // Initialize the sink which will write to the console and/or a file.
+    if (console) {
+        writer_types.push_back(WriterFactory::WriterType::STDOUT);
     }
+    if (!filename.empty()) {
+        writer_types.push_back(WriterFactory::WriterType::FILE);
+    }
+    sink = std::make_unique<Sink>(buffer, writer_types, filename);
 }
 
 void Logger::log(LogLevel level, const std::string& message) {
     if (level < minLogLevel) {
         return;
     }
-
-    std::lock_guard<std::mutex> lock(logMutex);
     std::string formatted = formatMessage(level, message);
-
-    if (consoleOutput) {
-        std::cout << formatted << std::endl;
-    }
-
-    if (logFile.is_open()) {
-        // logFile << formatted << std::endl;
-        // logFile.flush();  // Ensure messages are written immediately
-    }
+    buffer->push(formatted);
 }
 
 std::string Logger::getCurrentTime() {
@@ -94,6 +89,6 @@ void Logger::critical(const std::string& message) {
 }
 
 void Logger::setLogLevel(LogLevel level) {
-    std::lock_guard<std::mutex> lock(logMutex);
+    // TODO: This needs to be thread safe.
     minLogLevel = level;
 }

@@ -10,7 +10,8 @@
 template <typename T>
 class RingBuffer {
 public:
-    explicit RingBuffer(size_t capacity)
+    static constexpr size_t DEFAULT_CAPACITY = 2000;
+    explicit RingBuffer(size_t capacity = DEFAULT_CAPACITY)
         : capacity_(capacity), buffer_size_(capacity + 1), buffer_(capacity + 1), head_(0), tail_(0) {
         if (capacity == 0) {
             throw std::invalid_argument("Capacity must be greater than 0");
@@ -62,6 +63,8 @@ public:
         tail_.store(0, std::memory_order_release);
         head_.store(0, std::memory_order_release);
     }
+
+    ~RingBuffer() {}
 
 private:
     const size_t capacity_;

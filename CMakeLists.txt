@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOURCE src/logger.cpp)
 add_library(logger STATIC ${SOURCE})
 target_include_directories(logger PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(logger stdc++fs)
 
 # Build the main target
 add_executable(main src/main.cpp)

@@ -3,6 +3,10 @@
 
 #include <string>
 #include <filesystem>
+#include <iostream>
+#include <fstream>
+
+namespace fs = std::filesystem;
 
 static constexpr const size_t KB = 1024;
 static constexpr const size_t MB = 1024 * KB;
@@ -35,10 +39,9 @@ class FileWriter : public Writer {
 public:
 
     FileWriter(const std::string& filename) : filename_(filename) {
-        if (std::filesystem::exists(filename)) {
+        if (fs::exists(filename)) {
             throw std::runtime_error("File " + filename + " exists");
         }
-        std::cout << "FileWriter::FileWriter: " << filename << std::endl;
         file_ = std::ofstream(filename, std::ios::out | std::ios::app);
         if (!file_.is_open()) {
             throw std::runtime_error("Cannot open file: " + filename);
@@ -90,9 +93,9 @@ public:
 
     void write(const std::string& message) override {
         if(writer_type_ == ConsoleType::STD_OUT) {
-            std::cout << message << std::endl;
+            std::cout << message;
         } else {
-            std::cerr << message << std::endl;
+            std::cerr << message;
         }
     }
 

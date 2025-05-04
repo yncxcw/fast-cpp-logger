@@ -11,6 +11,9 @@
 #include <sstream>
 #include <vector>
 
+#include "sink.hpp"
+#include "ring_buffer.hpp"
+
 # define LOG_INFO(x) Logger::getInstance().info(x)
 # define LOG_DEBUG(x) Logger::getInstance().debug(x)
 # define LOG_WARNING(x) Logger::getInstance().warning(x)
@@ -53,22 +56,25 @@ public:
     // Set minimum log level
     void setLogLevel(LogLevel level);
 
+    // Notify the sink to finish.
+    void finish();
+
 private:
     Logger();  // Private constructor
     ~Logger();
 
     // Core logging function
     void log(LogLevel level, const std::string& message);
-
-    std::ofstream logFile;
-    LogLevel minLogLevel;
-    bool consoleOutput;
-    std::mutex logMutex;
-
     // Helper functions
     std::string getCurrentTime();
     std::string levelToString(LogLevel level);
     std::string formatMessage(LogLevel level, const std::string& message);
+    
+    LogLevel minLogLevel;
+    bool consoleOutput;
+
+    std::shared_ptr<RingBuffer<std::string>> buffer;
+    std::unique_ptr<Sink> sink;
 };
 
 #endif // LOGGER_H
