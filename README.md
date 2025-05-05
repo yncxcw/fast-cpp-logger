@@ -1,12 +1,12 @@
 # My C++ Project
 
 ## Overview
-This project is a simple C++ application that demonstrates the structure and organization of a C++ project using CMake. It includes utility functions that can be reused throughout the application.
+This project is a simple C++ implementaion of a logger system. It decouples the writer and reader using a lock-free ring-buffer to achieve high performance. Right now, it is still a toy exmaple for fun.
 
 
 ## Requirements
 - CMake (version 3.20 or higher)
-- A C++ compiler that supports C++11 or higher
+- A C++ compiler that supports C++17 or higher
 
 ## Building the Project
 
