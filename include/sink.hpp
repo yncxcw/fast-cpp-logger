@@ -26,13 +26,14 @@ class Sink {
     process_thread_ = std::thread(&Sink::process, this);
   }
   ~Sink() {
-    if (process_thread_.joinable()) {
-      process_thread_.join();
-    }
   }
 
   void finish() {
     finished_.store(true, std::memory_order_release);
+    // Make sure all the writers are flushed.
+    if (process_thread_.joinable()) {
+      process_thread_.join();
+    }
   }
 
   private:
@@ -44,6 +45,9 @@ class Sink {
       if (!success) {
         // Empty the buffer, if finished_ is set, we exit the loop
         if (finished_.load(std::memory_order_relaxed)) {
+          for (const auto& writer : writers_) {
+            writer->flush();
+          }
           break;
         }
         // Buffer is empty, wait for 100ms before checking again

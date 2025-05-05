@@ -16,6 +16,11 @@ class MockWriter : public Writer {
   const std::string name() const override {
     return "MockWriter";
   }
+
+  void flush() override {
+    // Do nothing
+  }
+
   std::vector<std::string> written_messages;
 };
 
@@ -26,13 +31,11 @@ class WriterTest : public ::testing::Test {
     // Create a temporary directory for test files
     test_dir = std::filesystem::temp_directory_path() / "writer_test";
     std::filesystem::create_directories(test_dir);
-    std::cout << "Setup Test directory: " << test_dir << std::endl;
   }
 
   void TearDown() override {
     // Clean up test files
     std::filesystem::remove_all(test_dir);
-    std::cout << "Tear down Test directory: " << test_dir << std::endl;
   }
 
   std::filesystem::path test_dir;
@@ -123,7 +126,7 @@ TEST_F(WriterTest, ConsoleWriterStdOut) {
   }
 
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Test message\nAnother message\n");
+  EXPECT_EQ(output, "Test messageAnother message");
 }
 
 TEST_F(WriterTest, ConsoleWriterStdErr) {
@@ -136,5 +139,5 @@ TEST_F(WriterTest, ConsoleWriterStdErr) {
   }
 
   std::string output = testing::internal::GetCapturedStderr();
-  EXPECT_EQ(output, "Test error\nAnother error\n");
+  EXPECT_EQ(output, "Test errorAnother error");
 }

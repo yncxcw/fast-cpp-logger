@@ -8,3 +8,8 @@ add_executable(test_writer test_writer.cpp)
 target_link_libraries(test_writer GTest::gtest_main pthread)
 target_include_directories(test_writer PRIVATE ${CMAKE_SOURCE_DIR}/include ${GTEST_INCLUDE_DIRS})
 add_test(NAME test_writer COMMAND test_writer)
+
+add_executable(test_logger test_logger.cpp)
+target_link_libraries(test_logger GTest::gtest_main pthread logger)
+target_include_directories(test_logger PRIVATE ${CMAKE_SOURCE_DIR}/include ${GTEST_INCLUDE_DIRS})
+add_test(NAME test_logger COMMAND test_logger)

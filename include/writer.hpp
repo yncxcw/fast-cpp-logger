@@ -23,6 +23,8 @@ class Writer {
   // Returns the name of the writer
   virtual const std::string name() const = 0;
 
+  virtual void flush() = 0;
+
   protected:
   // Protected constructor to prevent direct instantiation
   Writer() = default;
@@ -47,12 +49,16 @@ class FileWriter : public Writer {
     buffer_.reserve(BUFFER_SIZE);
   }
 
-  ~FileWriter() {
+  void flush() override {
     if (file_.is_open()) {
       file_ << buffer_;
       file_.flush();
       file_.close();
     }
+  }
+  
+  ~FileWriter() {
+    flush();
   }
 
   const std::string name() const override {
@@ -88,6 +94,8 @@ class ConsoleWriter : public Writer {
     return "ConsoleWriter";
   }
 
+  void flush() override {}
+
   void write(const std::string& message) override {
     if (writer_type_ == ConsoleType::STD_OUT) {
       std::cout << message;
@@ -104,6 +112,8 @@ class NoneWriter : public Writer {
   const std::string name() const override {
     return "NoneWriter";
   }
+
+  void flush() override {}
 
   void write(const std::string& message) override {
     // Write to /dev/null (no-op)
