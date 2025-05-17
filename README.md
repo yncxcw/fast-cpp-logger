@@ -1,4 +1,4 @@
-# My C++ Project
+# fast-cpp-logger
 
 ## Overview
 This project is a simple C++ implementaion of a logger system. It decouples the writer and reader using a lock-free ring-buffer to achieve high performance. Right now, it is still a toy exmaple for fun.
