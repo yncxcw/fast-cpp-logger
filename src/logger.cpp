@@ -32,7 +32,7 @@ void Logger::init(const std::string& filename, LogLevel level, bool console, boo
   sink = std::make_unique<Sink>(buffer, writer_types, filename);
 }
 
-void Logger::log(LogLevel level, const std::string& message) {
+void Logger::_log(LogLevel level, const std::string& message) {
   if (level < minLogLevel) {
     return;
   }
@@ -73,24 +73,24 @@ std::string Logger::formatMessage(LogLevel level, const std::string& message) {
   return ss.str();
 }
 
-void Logger::debug(const std::string& message) {
-  log(LogLevel::DEBUG, message);
+void Logger::_debug(const std::string& message) {
+  _log(LogLevel::DEBUG, message);
 }
 
-void Logger::info(const std::string& message) {
-  log(LogLevel::INFO, message);
+void Logger::_info(const std::string& message) {
+  _log(LogLevel::INFO, message);
 }
 
-void Logger::warning(const std::string& message) {
-  log(LogLevel::WARNING, message);
+void Logger::_warning(const std::string& message) {
+  _log(LogLevel::WARNING, message);
 }
 
-void Logger::error(const std::string& message) {
-  log(LogLevel::ERROR, message);
+void Logger::_error(const std::string& message) {
+  _log(LogLevel::ERROR, message);
 }
 
-void Logger::critical(const std::string& message) {
-  log(LogLevel::CRITICAL, message);
+void Logger::_critical(const std::string& message) {
+  _log(LogLevel::CRITICAL, message);
 }
 
 void Logger::setLogLevel(LogLevel level) {

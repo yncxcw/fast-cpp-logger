@@ -28,11 +28,11 @@ TEST_F(LoggerTest, LogLevels) {
     auto test_file = test_dir / "apps.log";
     Logger::getInstance().init(test_file.string(), LogLevel::WARNING, true);
     // Test all log levels
-    LOG_DEBUG("Debug message");
-    LOG_INFO("Info message");
-    LOG_WARNING("Warning message");
-    LOG_ERROR("Error message");
-    LOG_CRITICAL("Critical message");
+    LOG_DEBUG("Debug message", "oh", "foo");
+    LOG_INFO("Info message", 1, 2, 3);
+    LOG_WARNING("Warning message", 4.5, "bar");
+    LOG_ERROR("Error message", 6, 7, 8);
+    LOG_CRITICAL("Critical message", 10.1, 102.3, "baz");
     // The logger is a singleton, it syncs the log to the file when it is destroyed.
     // In unit tests, we need to call finish() to ensure the log is flushed to the file.
     Logger::getInstance().finish();

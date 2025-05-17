@@ -14,11 +14,11 @@
 #include "ring_buffer.hpp"
 #include "sink.hpp"
 
-#define LOG_INFO(x) Logger::getInstance().info(x)
-#define LOG_DEBUG(x) Logger::getInstance().debug(x)
-#define LOG_WARNING(x) Logger::getInstance().warning(x)
-#define LOG_ERROR(x) Logger::getInstance().error(x)
-#define LOG_CRITICAL(x) Logger::getInstance().critical(x)
+#define LOG_INFO(...) Logger::getInstance().info(__VA_ARGS__)
+#define LOG_DEBUG(...) Logger::getInstance().debug(__VA_ARGS__)
+#define LOG_WARNING(...) Logger::getInstance().warning(__VA_ARGS__)
+#define LOG_ERROR(...) Logger::getInstance().error(__VA_ARGS__)
+#define LOG_CRITICAL(...) Logger::getInstance().critical(__VA_ARGS__)
 
 enum class LogLevel : uint8_t { DEBUG = 1, INFO, WARNING, ERROR, CRITICAL };
 
@@ -47,41 +47,41 @@ class Logger {
     std::stringstream ss;
     // Fold the args into a stringstream
     (ss << ... << std::forward<Args>(args));
-    debug(ss.str());
+    _debug(ss.str());
   }
 
   template <typename... Args>
   void info(Args&&... args) {
     std::stringstream ss;
     (ss << ... << std::forward<Args>(args));
-    info(ss.str());
+    _info(ss.str());
   }
 
   template <typename... Args>
   void warning(Args&&... args) {
     std::stringstream ss;
     (ss << ... << std::forward<Args>(args));
-    warning(ss.str());
+    _warning(ss.str());
   }
 
   template <typename... Args>
   void error(Args&&... args) {
     std::stringstream ss;
     (ss << ... << std::forward<Args>(args));
-    error(ss.str());
+    _error(ss.str());
   }
 
   template <typename... Args>
   void critical(Args&&... args) {
     std::stringstream ss;
     (ss << ... << std::forward<Args>(args));
-    critical(ss.str());
+    _critical(ss.str());
   }
-  void debug(const std::string& message);
-  void info(const std::string& message);
-  void warning(const std::string& message);
-  void error(const std::string& message);
-  void critical(const std::string& message);
+  void _debug(const std::string& message);
+  void _info(const std::string& message);
+  void _warning(const std::string& message);
+  void _error(const std::string& message);
+  void _critical(const std::string& message);
 
   // Set minimum log level
   void setLogLevel(LogLevel level);
@@ -94,7 +94,7 @@ class Logger {
   ~Logger();
 
   // Core logging function
-  void log(LogLevel level, const std::string& message);
+  void _log(LogLevel level, const std::string& message);
   // Helper functions
   std::string getCurrentTime();
   std::string levelToString(LogLevel level);
