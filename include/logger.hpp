@@ -42,6 +42,41 @@ class Logger {
             bool override = false);
 
   // Logging methods
+  template <typename... Args>
+  void debug(Args&&... args) {
+    std::stringstream ss;
+    // Fold the args into a stringstream
+    (ss << ... << std::forward<Args>(args));
+    debug(ss.str());
+  }
+
+  template <typename... Args>
+  void info(Args&&... args) {
+    std::stringstream ss;
+    (ss << ... << std::forward<Args>(args));
+    info(ss.str());
+  }
+
+  template <typename... Args>
+  void warning(Args&&... args) {
+    std::stringstream ss;
+    (ss << ... << std::forward<Args>(args));
+    warning(ss.str());
+  }
+
+  template <typename... Args>
+  void error(Args&&... args) {
+    std::stringstream ss;
+    (ss << ... << std::forward<Args>(args));
+    error(ss.str());
+  }
+
+  template <typename... Args>
+  void critical(Args&&... args) {
+    std::stringstream ss;
+    (ss << ... << std::forward<Args>(args));
+    critical(ss.str());
+  }
   void debug(const std::string& message);
   void info(const std::string& message);
   void warning(const std::string& message);
